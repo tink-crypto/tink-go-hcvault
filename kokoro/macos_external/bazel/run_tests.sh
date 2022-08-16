@@ -47,14 +47,13 @@ echo "Using go binary from $(which go): $(go version)"
 # TODO(b/238389921): Run check_go_generated_files_up_to_date.sh after a
 # refactoring that takes into account extensions to tink-go.
 
-cp WORKSPACE WORKSPACE.bak
-
 # Replace com_github_tink_crypto_tink_go with a local one.
-grep -r "com_github_tink_crypto_tink_go" -l --include="*.bazel" \
-  | xargs sed -i \
+grep -r "com_github_tink_crypto_tink_go" -l --include="*.bazel"  . \
+  | xargs sed -i '.bak' \
       "s~com_github_tink_crypto_tink_go~com_github_tink_crypto_tink_go_local~g"
 
-sed -i 's~workspace(name = "tink_go_hcvault")~workspace(name = "tink_go_hcvault")\
+sed -i '.bak' \
+  's~workspace(name = "tink_go_hcvault")~workspace(name = "tink_go_hcvault")\
 \
 local_repository(\
     name = "com_github_tink_crypto_tink_go_local",\
