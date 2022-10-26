@@ -36,8 +36,6 @@ readonly GITHUB_ORG="https://github.com/tink-crypto"
   "${GITHUB_ORG}/tink-go"
 
 ./kokoro/testutils/update_certs.sh
-# Sourcing required to update callers environment.
-source ./kokoro/testutils/install_go.sh
 
 echo "Using go binary from $(which go): $(go version)"
 
