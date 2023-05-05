@@ -35,8 +35,6 @@ readonly GITHUB_ORG="https://github.com/tink-crypto"
 ./kokoro/testutils/fetch_git_repo_if_not_present.sh "${TINK_BASE_DIR}" \
   "${GITHUB_ORG}/tink-go"
 
-./kokoro/testutils/update_certs.sh
-
 echo "Using go binary from $(which go): $(go version)"
 
 readonly TINK_GO_MODULE_URL="github.com/tink-crypto/tink-go"
