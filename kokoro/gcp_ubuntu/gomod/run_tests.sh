@@ -41,7 +41,7 @@ echo "Using go binary from $(which go): $(go version)"
 
 readonly TINK_GO_MODULE_URL="github.com/tink-crypto/tink-go"
 readonly TINK_GO_HCVAULT_MODULE_URL="github.com/tink-crypto/tink-go-hcvault"
-readonly TINK_VERSION="$(cat ${TINK_GO_HCVAULT_PROJECT_PATH}/tink_version.bzl \
+readonly TINK_VERSION="$(cat ${TINK_GO_HCVAULT_PROJECT_PATH}/version.bzl \
                         | grep ^TINK \
                         | cut -f 2 -d \")"
 cp go.mod go.mod.bak
