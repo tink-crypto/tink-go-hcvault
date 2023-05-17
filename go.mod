@@ -1,6 +1,6 @@
 module github.com/tink-crypto/tink-go-hcvault
 
-go 1.17
+go 1.19
 
 require (
 	github.com/hashicorp/vault/api v1.4.1
