@@ -79,20 +79,13 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 
 go_rules_dependencies()
 
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
-# Tink Go Google Cloud KMS Deps.
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+# Tink Go HashiCorp Vault KMS Deps.
 load("//:deps.bzl", "tink_go_hcvault_dependencies")
 
 # gazelle:repository_macro deps.bzl%tink_go_hcvault_dependencies
 tink_go_hcvault_dependencies()
-
-# TODO(b/213404399): Remove after Gazelle issue is fixed.
-go_repository(
-    name = "com_google_cloud_go_compute",
-    importpath = "cloud.google.com/go/compute",
-    sum = "h1:rSUBvAyVwNJ5uQCKNJFMwPtTvJkfN38b6Pvb9zZoqJ8=",
-    version = "v0.1.0",
-)
 
 go_register_toolchains(
     nogo = "@//:tink_nogo",
