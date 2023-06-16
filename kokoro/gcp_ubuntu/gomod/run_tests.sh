@@ -54,7 +54,7 @@ readonly GITHUB_ORG="https://github.com/tink-crypto"
 ./kokoro/testutils/fetch_git_repo_if_not_present.sh "${TINK_BASE_DIR}" \
   "${GITHUB_ORG}/tink-go"
 
-readonly TINK_GO_MODULE_URL="github.com/tink-crypto/tink-go"
+readonly TINK_GO_MODULE_URL="github.com/tink-crypto/tink-go/v2"
 readonly TINK_GO_HCVAULT_MODULE_URL="github.com/tink-crypto/tink-go-hcvault"
 readonly TINK_VERSION="$(cat version.bzl | grep ^TINK | cut -f 2 -d \")"
 

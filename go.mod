@@ -4,7 +4,10 @@ go 1.19
 
 require (
 	github.com/hashicorp/vault/api v1.9.1
-	github.com/tink-crypto/tink-go v0.0.0-20230523140635-48bf5fd5b1c7
+	// NOTE: The tag doesn't exist, yet this is needed since we keep compatibility with the top of
+	// tink-go's main branch. Gomod tests add a replace directive to use a local tink-go repository.
+	// TODO(b/204159796): Update this once tink-go release is complete.
+	github.com/tink-crypto/tink-go/v2 v2.0.0
 )
 
 require (

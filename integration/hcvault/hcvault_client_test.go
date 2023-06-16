@@ -20,10 +20,10 @@ import (
 	"crypto/tls"
 	"log"
 
-	"github.com/tink-crypto/tink-go/aead"
-	"github.com/tink-crypto/tink-go/core/registry"
+	"github.com/tink-crypto/tink-go/v2/aead"
+	"github.com/tink-crypto/tink-go/v2/core/registry"
 	"github.com/tink-crypto/tink-go-hcvault/integration/hcvault"
-	"github.com/tink-crypto/tink-go/keyset"
+	"github.com/tink-crypto/tink-go/v2/keyset"
 )
 
 func Example() {

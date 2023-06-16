@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/vault/api"
-	"github.com/tink-crypto/tink-go/tink"
+	"github.com/tink-crypto/tink-go/v2/tink"
 )
 
 // vaultAEAD represents a HashiCorp Vault service to a particular URI.
