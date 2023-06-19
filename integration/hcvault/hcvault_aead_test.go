@@ -29,7 +29,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tink-crypto/tink-go-hcvault/integration/hcvault"
+	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
 )
 
 const (

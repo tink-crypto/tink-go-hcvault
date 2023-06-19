@@ -1,4 +1,4 @@
-module github.com/tink-crypto/tink-go-hcvault
+module github.com/tink-crypto/tink-go-hcvault/v2
 
 go 1.19
 

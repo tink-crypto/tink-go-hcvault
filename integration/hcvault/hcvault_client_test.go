@@ -22,7 +22,7 @@ import (
 
 	"github.com/tink-crypto/tink-go/v2/aead"
 	"github.com/tink-crypto/tink-go/v2/core/registry"
-	"github.com/tink-crypto/tink-go-hcvault/integration/hcvault"
+	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
 	"github.com/tink-crypto/tink-go/v2/keyset"
 )
 

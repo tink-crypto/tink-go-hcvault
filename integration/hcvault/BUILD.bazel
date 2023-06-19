@@ -10,7 +10,7 @@ go_library(
         "hcvault_aead.go",
         "hcvault_client.go",
     ],
-    importpath = "github.com/tink-crypto/tink-go-hcvault/integration/hcvault",
+    importpath = "github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault",
     deps = [
         "@com_github_hashicorp_vault_api//:api",
         "@com_github_tink_crypto_tink_go//core/registry",
