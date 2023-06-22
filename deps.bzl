@@ -43,6 +43,12 @@ def tink_go_hcvault_dependencies():
         sum = "h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=",
         version = "v1.7.0",
     )
+    go_repository(
+        name = "com_github_go_jose_go_jose_v3",
+        importpath = "github.com/go-jose/go-jose/v3",
+        sum = "h1:s6rrhirfEP/CGIoc6p+PZAeogN2SxKav6Wp7+dyMWVo=",
+        version = "v3.0.0",
+    )
 
     go_repository(
         name = "com_github_go_test_deep",
@@ -134,8 +140,8 @@ def tink_go_hcvault_dependencies():
     go_repository(
         name = "com_github_hashicorp_vault_api",
         importpath = "github.com/hashicorp/vault/api",
-        sum = "h1:LtY/I16+5jVGU8rufyyAkwopgq/HpUnxFBg+QLOAV38=",
-        version = "v1.9.1",
+        sum = "h1:YjkZLJ7K3inKgMZ0wzCU9OHqc+UqMQyXsPXnf3Cl2as=",
+        version = "v1.9.2",
     )
 
     go_repository(
@@ -217,10 +223,10 @@ def tink_go_hcvault_dependencies():
         version = "v1.7.0",
     )
     go_repository(
-        name = "com_github_tink_crypto_tink_go",
-        importpath = "github.com/tink-crypto/tink-go",
-        sum = "h1:XpILcYStxVV79Y3eFpiJLKXQ35QuSn9kVLyq5QPU8Vg=",
-        version = "v0.0.0-20230523140635-48bf5fd5b1c7",
+        name = "com_github_tink_crypto_tink_go_v2",
+        importpath = "github.com/tink-crypto/tink-go/v2",
+        sum = "h1:LutFJapahsM0i/6hKfOkzSYTVeshmFs+jloZXqe9z9s=",
+        version = "v2.0.0",
     )
 
     go_repository(
@@ -228,12 +234,6 @@ def tink_go_hcvault_dependencies():
         importpath = "gopkg.in/check.v1",
         sum = "h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=",
         version = "v0.0.0-20161208181325-20d25e280405",
-    )
-    go_repository(
-        name = "in_gopkg_square_go_jose_v2",
-        importpath = "gopkg.in/square/go-jose.v2",
-        sum = "h1:7odma5RETjNHWJnR32wx8t+Io4djHE1PqxCFx3iiZ2w=",
-        version = "v2.5.1",
     )
 
     go_repository(
