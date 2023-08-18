@@ -14,48 +14,20 @@
 # limitations under the License.
 ################################################################################
 
-# The user may specify TINK_BASE_DIR as the folder where to look for
-# tink-go-hcvault dependencies.
-
 set -euo pipefail
 
-TINK_GO_HCVAULT_PROJECT_PATH="$(pwd)"
 if [[ -n "${KOKORO_ROOT:-}" ]]; then
-  TINK_BASE_DIR="$(echo "${KOKORO_ARTIFACTS_DIR}"/git*)"
-  TINK_GO_HCVAULT_PROJECT_PATH="${TINK_BASE_DIR}/tink_go_hcvault"
-  cd "${TINK_GO_HCVAULT_PROJECT_PATH}"
+  readonly TINK_BASE_DIR="$(echo "${KOKORO_ARTIFACTS_DIR}"/git*)"
+  cd "${TINK_BASE_DIR}/tink_go_hcvault"
 fi
-readonly TINK_GO_HCVAULT_PROJECT_PATH
-
-: "${TINK_BASE_DIR:=$(cd .. && pwd)}"
-
-# Check for dependencies in TINK_BASE_DIR. Any that aren't present will be
-# downloaded.
-readonly GITHUB_ORG="https://github.com/tink-crypto"
-./kokoro/testutils/fetch_git_repo_if_not_present.sh "${TINK_BASE_DIR}" \
-  "${GITHUB_ORG}/tink-go"
 
 # Sourcing required to update callers environment.
 source ./kokoro/testutils/install_go.sh
-
 echo "Using go binary from $(which go): $(go version)"
 
-readonly TINK_GO_MODULE_URL="github.com/tink-crypto/tink-go/v2"
 readonly TINK_GO_HCVAULT_MODULE_URL="github.com/tink-crypto/tink-go-hcvault"
-readonly TINK_VERSION="$(cat ${TINK_GO_HCVAULT_PROJECT_PATH}/version.bzl \
-                        | grep ^TINK \
-                        | cut -f 2 -d \")"
-cp go.mod go.mod.bak
+readonly TINK_GO_HCVAULT_VERSION="$(cat version.bzl | grep ^TINK \
+  | cut -f 2 -d \")"
 
-# Modify go.mod locally to use the version of tink-go in TINK_BASE_DIR/tink_go.
-go mod edit "-replace=${TINK_GO_MODULE_URL}=${TINK_BASE_DIR}/tink_go"
-go mod tidy
-go list -m all | grep tink-go
-
-./kokoro/testutils/run_go_mod_tests.sh \
-  "${TINK_GO_HCVAULT_MODULE_URL}" \
-  "${TINK_GO_HCVAULT_PROJECT_PATH}" \
-  "${TINK_VERSION}" \
-  "main"
-
-mv go.mod.bak go.mod
+./kokoro/testutils/run_go_mod_tests.sh "${TINK_GO_HCVAULT_MODULE_URL}" \
+  "$(pwd)" "${TINK_GO_HCVAULT_VERSION}" "main"
