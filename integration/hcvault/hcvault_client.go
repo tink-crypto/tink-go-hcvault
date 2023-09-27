@@ -27,9 +27,9 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/hashicorp/vault/api"
 	"github.com/tink-crypto/tink-go/v2/core/registry"
 	"github.com/tink-crypto/tink-go/v2/tink"
-	"github.com/hashicorp/vault/api"
 )
 
 const (
