@@ -26,7 +26,6 @@ go_test(
         "hcvault_aead_test.go",
         "hcvault_client_test.go",
     ],
-    data = ["//integration/hcvault/testdata:server_tls_files"],
     embed = [":hcvault"],
     deps = ["@com_github_tink_crypto_tink_go_v2//aead"],
 )
