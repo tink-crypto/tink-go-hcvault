@@ -27,7 +27,10 @@ go_test(
         "hcvault_client_test.go",
     ],
     embed = [":hcvault"],
-    deps = ["@com_github_tink_crypto_tink_go_v2//aead"],
+    deps = [
+        "@com_github_hashicorp_vault_api//:api",
+        "@com_github_tink_crypto_tink_go_v2//aead",
+    ],
 )
 
 alias(
