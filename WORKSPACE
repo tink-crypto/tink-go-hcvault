@@ -2,9 +2,6 @@ workspace(name = "tink_go_hcvault")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# -------------------------------------------------------------------------
-# Bazel rules for Go.
-# -------------------------------------------------------------------------
 # Release from 2023-04-20
 http_archive(
     name = "io_bazel_rules_go",
@@ -15,9 +12,6 @@ http_archive(
     ],
 )
 
-# -------------------------------------------------------------------------
-# Bazel Gazelle.
-# -------------------------------------------------------------------------
 # Release from 2023-01-14
 http_archive(
     name = "bazel_gazelle",
