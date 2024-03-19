@@ -2,31 +2,40 @@ workspace(name = "tink_go_hcvault")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# Release from 2023-04-20
+# Release from 2023-12-21
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "6dc2da7ab4cf5d7bfc7c949776b1b7c733f05e56edc4bcd9022bb249d2e2a996",
+    integrity = "sha256-gKmCd60TEdrNg3+bFttiiHcC6fHRxMn3ltASGkbI4YQ=",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.39.1/rules_go-v0.39.1.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.39.1/rules_go-v0.39.1.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.46.0/rules_go-v0.46.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.46.0/rules_go-v0.46.0.zip",
     ],
 )
 
-# Release from 2023-01-14
+# Release from 2023-12-21
 http_archive(
     name = "bazel_gazelle",
-    sha256 = "ecba0f04f96b4960a5b250c8e8eeec42281035970aa8852dda73098274d14a1d",
+    integrity = "sha256-MpOL2hbmcABjA1R5Bj2dJMYO2o15/Uc5Vj9Q0zHLMgk=",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.29.0/bazel-gazelle-v0.29.0.tar.gz",
-        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.29.0/bazel-gazelle-v0.29.0.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.35.0/bazel-gazelle-v0.35.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.35.0/bazel-gazelle-v0.35.0.tar.gz",
     ],
+)
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
+
+# Force v0.15.0 as this is neede by io_bazel_rules_go.
+# See https://github.com/bazelbuild/rules_go/blob/v0.46.0/go/private/repositories.bzl#L67.
+go_repository(
+    name = "org_golang_x_tools",
+    importpath = "golang.org/x/tools",
+    sum = "h1:zdAyfUGbYmuVokhzVmghFl2ZJh5QhcfebBgmVPFYA+8=",
+    version = "v0.15.0",
 )
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 
 load("//:deps.bzl", "tink_go_hcvault_dependencies")
-
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 
 # gazelle:repository_macro deps.bzl%tink_go_hcvault_dependencies
 tink_go_hcvault_dependencies()
@@ -35,7 +44,7 @@ go_rules_dependencies()
 
 go_register_toolchains(
     nogo = "@//:tink_nogo",
-    version = "1.20.10",
+    version = "1.21.8",
 )
 
 gazelle_dependencies()
