@@ -52,6 +52,17 @@ var _ registry.KMSClient = (*vaultClient)(nil)
 // server via HTTPS protocol. If not specified a default tls.Config{} will be
 // used.
 func NewClient(uriPrefix string, tlsCfg *tls.Config, token string) (registry.KMSClient, error) {
+	return NewClientWithNamespace(uriPrefix, tlsCfg, "", token)
+}
+
+// NewClientWithNamespace returns a new client to HashiCorp Vault with the given namespace if non-empty.
+// uriPrefix parameter is a valid URI which must have "hcvault" scheme and
+// vault server address and port. Specific key URIs will be matched against this
+// prefix to determine if the client supports the key or not.
+// tlsCfg represents tls.Config which will be used to communicate with Vault
+// server via HTTPS protocol. If not specified a default tls.Config{} will be
+// used.
+func NewClientWithNamespace(uriPrefix string, tlsCfg *tls.Config, namespace string, token string) (registry.KMSClient, error) {
 	if !strings.HasPrefix(strings.ToLower(uriPrefix), vaultPrefix) {
 		return nil, fmt.Errorf("key URI must start with %s", vaultPrefix)
 	}
@@ -80,12 +91,14 @@ func NewClient(uriPrefix string, tlsCfg *tls.Config, token string) (registry.KMS
 		return nil, err
 	}
 
+	if namespace != "" {
+		client.SetNamespace(namespace)
+	}
 	client.SetToken(token)
 	return &vaultClient{
 		keyURIPrefix: uriPrefix,
 		client:       client.Logical(),
 	}, nil
-
 }
 
 // Supported returns true if this client does support keyURI.
