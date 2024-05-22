@@ -56,6 +56,43 @@ func TestVaultNewAEAD_EncryptDecrypt(t *testing.T) {
 		t.Fatalf("aead.Decrypt(ciphertext, associatedData) err = %v, want nil", err)
 	}
 	if !bytes.Equal(gotPlaintext, plaintext) {
+		t.Errorf("aead.Decrypt(ciphertext, associatedData) = %s, want %s", gotPlaintext, plaintext)
+	}
+
+	otherAssociatedData := []byte("otherAssociatedData")
+	_, err = aead.Decrypt(ciphertext, otherAssociatedData)
+	if err == nil {
+		t.Error("aead.Decrypt(ciphertext, otherAssociatedData) err = nil, want error")
+	}
+}
+
+func TestVaultNewClientWithAEADOptions_EncryptDecrypt(t *testing.T) {
+	server, uriPrefix, tlsConfig := newServer(t)
+	defer server.Close()
+
+	client := newVaultAPIClient(t, server.URL, token, tlsConfig)
+
+	keyURI := uriPrefix + "/transit/keys/key-1"
+	tinkClient, err := hcvault.NewClientWithAEADOptions(keyURI, client.Logical())
+	if err != nil {
+		t.Fatalf("hcvault.NewClientWithAEADOptions() err = %v, want nil", err)
+	}
+	aead, err := tinkClient.GetAEAD(keyURI)
+	if err != nil {
+		t.Fatalf("tinkClient.GetAEAD() err = %v, want nil", err)
+	}
+
+	plaintext := []byte("plaintext")
+	associatedData := []byte("associatedData")
+	ciphertext, err := aead.Encrypt(plaintext, associatedData)
+	if err != nil {
+		t.Fatalf("aead.Encrypt(plaintext, associatedData) err = %v, want nil", err)
+	}
+	gotPlaintext, err := aead.Decrypt(ciphertext, associatedData)
+	if err != nil {
+		t.Fatalf("aead.Decrypt(ciphertext, associatedData) err = %v, want nil", err)
+	}
+	if !bytes.Equal(gotPlaintext, plaintext) {
 		t.Fatalf("aead.Decrypt(ciphertext, associatedData) = %s, want %s", gotPlaintext, plaintext)
 	}
 
@@ -97,46 +134,71 @@ func TestVaultNewAEADWithLegacyContextParamater_isCompatible(t *testing.T) {
 
 	client := newVaultAPIClient(t, server.URL, token, tlsConfig)
 
-	// Create AEAD with WithLegacyContextParamater.
+	// Create AEAD with NewAEAD using WithLegacyContextParamater.
 	aead1, err := hcvault.NewAEAD("/transit/keys/key-1", client.Logical(), hcvault.WithLegacyContextParamater())
 	if err != nil {
 		t.Fatalf("hcvault.NewAEAD() err = %v, want nil", err)
 	}
 
+	keyURI := uriPrefix + "/transit/keys/key-1"
+
+	// Create AEAD with hcvault.NewClientWithAEADOptions using WithLegacyContextParamater and GetAEAD.
+	hcvaultClient2, err := hcvault.NewClientWithAEADOptions(
+		uriPrefix, client.Logical(), hcvault.WithLegacyContextParamater())
+	if err != nil {
+		t.Fatalf("hcvault.NewClientWithAEADOptions() err = %v, want nil", err)
+	}
+	aead2, err := hcvaultClient2.GetAEAD(keyURI)
+	if err != nil {
+		t.Fatalf("hcvaultClient2.GetAEAD(%q) err = %v, want nil", keyURI, err)
+	}
+
 	// Create AEAD with hcvault.NewClient and GetAEAD.
-	hcvaultClient, err := hcvault.NewClient(uriPrefix, tlsConfig, token)
+	hcvaultClient3, err := hcvault.NewClient(uriPrefix, tlsConfig, token)
 	if err != nil {
 		t.Fatalf("hcvault.NewClient() err = %v, want nil", err)
 	}
-	keyURI := fmt.Sprintf("%s/transit/keys/key-1", uriPrefix)
-	aead2, err := hcvaultClient.GetAEAD(keyURI)
+	aead3, err := hcvaultClient3.GetAEAD(keyURI)
 	if err != nil {
-		t.Fatalf("hcvaultClient.GetAEAD(%q) err = %v, want nil", keyURI, err)
+		t.Fatalf("hcvaultClient3.GetAEAD(%q) err = %v, want nil", keyURI, err)
 	}
 
 	plaintext := []byte("plaintext")
 	associatedData := []byte("associatedData")
+
 	ciphertext2, err := aead2.Encrypt(plaintext, associatedData)
 	if err != nil {
 		t.Fatalf("aead2.Encrypt(plaintext, associatedData) err = %v, want nil", err)
 	}
 	gotPlaintext1, err := aead1.Decrypt(ciphertext2, associatedData)
 	if err != nil {
-		t.Fatalf("aead1.Decrypt(ciphertext, associatedData) err = %v, want nil", err)
+		t.Fatalf("aead1.Decrypt(ciphertext2, associatedData) err = %v, want nil", err)
 	}
 	if !bytes.Equal(gotPlaintext1, plaintext) {
 		t.Fatalf("aead1.Decrypt(ciphertext2, associatedData) = %s, want %s", gotPlaintext1, plaintext)
+	}
+
+	ciphertext3, err := aead3.Encrypt(plaintext, associatedData)
+	if err != nil {
+		t.Fatalf("aead2.Encrypt(plaintext, associatedData) err = %v, want nil", err)
+	}
+	gotPlaintext2, err := aead2.Decrypt(ciphertext3, associatedData)
+	if err != nil {
+		t.Fatalf("aead2.Decrypt(ciphertext3, associatedData) err = %v, want nil", err)
+	}
+	if !bytes.Equal(gotPlaintext2, plaintext) {
+		t.Fatalf("aead2.Decrypt(ciphertext3, associatedData) = %s, want %s", gotPlaintext2, plaintext)
 	}
 
 	ciphertext1, err := aead1.Encrypt(plaintext, associatedData)
 	if err != nil {
 		t.Fatalf("aead2.Encrypt(plaintext, associatedData) err = %v, want nil", err)
 	}
-	gotPlaintext2, err := aead2.Decrypt(ciphertext1, associatedData)
+	gotPlaintext3, err := aead3.Decrypt(ciphertext1, associatedData)
 	if err != nil {
 		t.Fatalf("aead2.Decrypt(ciphertext1, associatedData) err = %v, want nil", err)
 	}
-	if !bytes.Equal(gotPlaintext2, plaintext) {
+	if !bytes.Equal(gotPlaintext3, plaintext) {
 		t.Fatalf("aead2.Decrypt(ciphertext1, associatedData) = %s, want %s", gotPlaintext2, plaintext)
 	}
 }

@@ -38,22 +38,51 @@ const (
 type vaultClient struct {
 	keyURIPrefix string
 	client       *api.Logical
+	aeadOpts     []AEADOption
 }
 
 var _ registry.KMSClient = (*vaultClient)(nil)
 
-// NewClient returns a new client to HashiCorp Vault.
+// NewClientWithAEADOptions returns a new client.
 // uriPrefix parameter is a valid URI which must have "hcvault" scheme and
 // vault server address and port. Specific key URIs will be matched against this
 // prefix to determine if the client supports the key or not.
-// tlsCfg represents tls.Config which will be used to communicate with Vault
-// server via HTTPS protocol. If not specified a default tls.Config{} will be
-// used.
-func NewClient(uriPrefix string, tlsCfg *tls.Config, token string) (registry.KMSClient, error) {
+func NewClientWithAEADOptions(uriPrefix string, client *api.Logical, aeadOpts ...AEADOption) (registry.KMSClient, error) {
 	if !strings.HasPrefix(strings.ToLower(uriPrefix), vaultPrefix) {
 		return nil, fmt.Errorf("key URI must start with %s", vaultPrefix)
 	}
 
+	return &vaultClient{
+		keyURIPrefix: uriPrefix,
+		client:       client,
+		aeadOpts:     aeadOpts,
+	}, nil
+}
+
+// NewClient returns a new client to HashiCorp Vault.
+//
+// # Warning regarding associated data
+//
+// For backwards compatibility, the AEAD implementation returned by this client
+// uses the associated_data value to populate the "context" parameter in encrypt
+// and decrypt requests, instead of using the "associated_data" request parameter.
+// This is an artifact of the "associated_data" parameter not being present when
+// this package was implemented.
+//
+// Vault only uses the "context" parameter for keys which have derivation enabled
+// (with "derived=true") and ignores it otherwise. For such keys, the "context"
+// parameter is required to be non-empty.
+//
+// Therefore:
+// - for keys with "derived=false", you should only use empty associated data.
+// - for keys with "derived=true", you should only use non-empty associated data.
+//
+// With Tink's "KMS envelope AEAD", always use a key with "derived=false".
+//
+// For reference, see https://developer.hashicorp.com/vault/api-docs/secret/transit.
+//
+// Deprecated. Use NewClientWithAEADOptions instead.
+func NewClient(uriPrefix string, tlsCfg *tls.Config, token string) (registry.KMSClient, error) {
 	httpClient := api.DefaultConfig().HttpClient
 	transport := httpClient.Transport.(*http.Transport)
 	if tlsCfg == nil {
@@ -79,11 +108,7 @@ func NewClient(uriPrefix string, tlsCfg *tls.Config, token string) (registry.KMS
 	}
 
 	client.SetToken(token)
-	return &vaultClient{
-		keyURIPrefix: uriPrefix,
-		client:       client.Logical(),
-	}, nil
-
+	return NewClientWithAEADOptions(uriPrefix, client.Logical(), WithLegacyContextParamater())
 }
 
 // Supported returns true if this client does support keyURI.
@@ -92,25 +117,6 @@ func (c *vaultClient) Supported(keyURI string) bool {
 }
 
 // GetAEAD gets an AEAD backed by keyURI.
-//
-// ## Warning regarding associated data
-//
-// This AEAD implementation uses the associated_data value to populate the
-// "context" parameter in encrypt and decrypt requests, instead of using the
-// "associated_data" request parameter. This is an artifact of the "associated_data"
-// parameter not being present when this package was implemented.
-//
-// Vault only uses the "context" parameter for keys which have derivation enabled
-// (with "derived=true") and ignores it otherwise. For such keys, the "context"
-// parameter is required to be non-empty.
-//
-// Therefore:
-// - for keys with "derived=false", you should only use empty associated data.
-// - for keys with "derived=true", you should only use non-empty associated data.
-//
-// With Tink's "KMS envelope AEAD", always use a key with "derived=false".
-//
-// For reference, see https://developer.hashicorp.com/vault/api-docs/secret/transit.
 func (c *vaultClient) GetAEAD(keyURI string) (tink.AEAD, error) {
 	if !c.Supported(keyURI) {
 		return nil, errors.New("unsupported keyURI")
@@ -120,5 +126,5 @@ func (c *vaultClient) GetAEAD(keyURI string) (tink.AEAD, error) {
 		return nil, errors.New("malformed keyURI")
 	}
 	keyPath := u.EscapedPath()
-	return NewAEAD(keyPath, c.client, WithLegacyContextParamater())
+	return NewAEAD(keyPath, c.client, c.aeadOpts...)
 }
