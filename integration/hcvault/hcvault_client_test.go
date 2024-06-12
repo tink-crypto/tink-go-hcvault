@@ -17,21 +17,35 @@ package hcvault_test
 import (
 	"crypto/tls"
 	"log"
+	"net/http"
 
+	"github.com/hashicorp/vault/api"
 	"github.com/tink-crypto/tink-go/v2/aead"
 	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
 )
 
 func Example() {
-	// Use a key with key derivation enabled (with "derived=true") if you use a non-empty
-	// associated_data.
 	const keyURI = "hcvault://hcvault.corp.com:8200/transit/keys/key-1"
 
-	vaultClient, err := hcvault.NewClient(keyURI, tlsConfig(), vaultToken())
+	httpClient := api.DefaultConfig().HttpClient
+	transport := httpClient.Transport.(*http.Transport)
+	transport.TLSClientConfig = tlsConfig()
+
+	cfg := &api.Config{
+		Address:    "https://hcvault.corp.com:8200",
+		HttpClient: httpClient,
+	}
+	apiClient, err := api.NewClient(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
-	kekAEAD, err := vaultClient.GetAEAD(keyURI)
+	apiClient.SetToken(vaultToken())
+
+	kmsClient, err := hcvault.NewClientWithAEADOptions(keyURI, apiClient.Logical())
+	if err != nil {
+		log.Fatal(err)
+	}
+	kekAEAD, err := kmsClient.GetAEAD(keyURI)
 	if err != nil {
 		log.Fatal(err)
 	}
