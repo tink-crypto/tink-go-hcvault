@@ -37,12 +37,19 @@ if [[ -n "${CONTAINER_IMAGE:-}" ]]; then
   RUN_COMMAND_ARGS+=( -c "${CONTAINER_IMAGE}" )
 fi
 
-cat <<'EOF' > _do_run_test.sh
-#!/bin/bash
+./kokoro/testutils/run_command.sh "${RUN_COMMAND_ARGS[@]}" \
+  ./kokoro/testutils/check_go_generated_files_up_to_date.sh .
 
-set -euo pipefail
-
-./kokoro/testutils/check_go_generated_files_up_to_date.sh "$(pwd)"
+RUN_BAZEL_TESTS_OPTS=(
+  -t
+  --test_arg=--test.v
+)
+if [[ -n "${TINK_REMOTE_BAZEL_CACHE_GCS_BUCKET:-}" ]]; then
+  cp "${TINK_REMOTE_BAZEL_CACHE_SERVICE_KEY}" ./cache_key
+  readonly REMOTE_CACHE="${TINK_REMOTE_BAZEL_CACHE_GCS_BUCKET}/bazel/tink_go_hcvault_${TINK_GO_BASE_IMAGE_HASH}"
+  RUN_BAZEL_TESTS_OPTS+=( -c "${REMOTE_CACHE}" )
+fi
+readonly RUN_BAZEL_TESTS_OPTS
 
 MANUAL_TARGETS=()
 # Run manual tests that rely on test data only available via Bazel.
@@ -50,22 +57,7 @@ if [[ -n "${KOKORO_ROOT:-}" ]]; then
   MANUAL_TARGETS+=( "//integration/hcvault:hcvault_test" )
 fi
 readonly MANUAL_TARGETS
-./kokoro/testutils/run_bazel_tests.sh -t --test_arg=--test.v . \
-  "${MANUAL_TARGETS[@]}"
-EOF
-chmod +x _do_run_test.sh
 
-cat <<EOF > _env_variables.txt
-KOKORO_ROOT
-EOF
-RUN_COMMAND_ARGS+=( -e _env_variables.txt )
-
-# Run cleanup on EXIT.
-trap cleanup EXIT
-
-cleanup() {
-  rm -rf _do_run_test.sh
-  rm -rf _env_variables.txt
-}
-
-./kokoro/testutils/run_command.sh "${RUN_COMMAND_ARGS[@]}" ./_do_run_test.sh
+./kokoro/testutils/run_command.sh "${RUN_COMMAND_ARGS[@]}" \
+  ./kokoro/testutils/run_bazel_tests.sh "${RUN_BAZEL_TESTS_OPTS[@]}" . \
+    "${MANUAL_TARGETS[@]}"
