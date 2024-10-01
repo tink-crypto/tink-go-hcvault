@@ -41,12 +41,16 @@ const (
 	legacyAssociatedDataName  = "context"
 )
 
+type aeadParams struct {
+	associatedDataName string
+}
+
 // AEADOption is an interface for defining options that are passed to [NewAEAD].
-type AEADOption interface{ set(*vaultAEAD) error }
+type AEADOption interface{ set(*aeadParams) error }
 
-type option func(*vaultAEAD) error
+type option func(*aeadParams) error
 
-func (o option) set(a *vaultAEAD) error { return o(a) }
+func (o option) set(a *aeadParams) error { return o(a) }
 
 // WithLegacyContextParamater lets the remote AEAD populate the "context" parameter
 // in encrypt and decrypt requests instead of the "associated_data".
@@ -61,14 +65,16 @@ func (o option) set(a *vaultAEAD) error { return o(a) }
 // parameter is required to be non-empty.
 //
 // Therefore:
+//
 // - for keys with "derived=false", you should only use empty associated data.
+//
 // - for keys with "derived=true", you should only use non-empty associated data.
 //
 // With Tink's "KMS envelope AEAD", always use a key with "derived=false".
 //
 // For reference, see https://developer.hashicorp.com/vault/api-docs/secret/transit.
 func WithLegacyContextParamater() AEADOption {
-	return option(func(a *vaultAEAD) error {
+	return option(func(a *aeadParams) error {
 		a.associatedDataName = legacyAssociatedDataName
 		return nil
 	})
@@ -76,6 +82,15 @@ func WithLegacyContextParamater() AEADOption {
 
 // NewAEAD returns a new remote AEAD primitive for a HashiCorp Vault service.
 func NewAEAD(keyPath string, client *api.Logical, opts ...AEADOption) (tink.AEAD, error) {
+	params := &aeadParams{
+		associatedDataName: defaultAssociatedDataName,
+	}
+	// Process options, if any.
+	for _, opt := range opts {
+		if err := opt.set(params); err != nil {
+			return nil, fmt.Errorf("failed setting option: %v", err)
+		}
+	}
 	encKeyPath, decKeyPath, err := getEndpointPaths(keyPath)
 	if err != nil {
 		return nil, err
@@ -84,13 +99,7 @@ func NewAEAD(keyPath string, client *api.Logical, opts ...AEADOption) (tink.AEAD
 		encKeyPath:         encKeyPath,
 		decKeyPath:         decKeyPath,
 		client:             client,
-		associatedDataName: defaultAssociatedDataName,
-	}
-	// Process options, if any.
-	for _, opt := range opts {
-		if err := opt.set(a); err != nil {
-			return nil, fmt.Errorf("failed setting option: %v", err)
-		}
+		associatedDataName: params.associatedDataName,
 	}
 	return a, nil
 }
