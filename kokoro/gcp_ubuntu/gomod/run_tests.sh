@@ -40,5 +40,7 @@ readonly TINK_GO_HCVAULT_MODULE_URL="github.com/tink-crypto/tink-go-hcvault"
 readonly TINK_GO_HCVAULT_VERSION="$(cat version.bzl | grep ^TINK | cut -f 2 -d \")"
 
 ./kokoro/testutils/run_command.sh "${RUN_COMMAND_ARGS[@]}" \
+  ./kokoro/testutils/check_go_generated_files_up_to_date.sh .
+./kokoro/testutils/run_command.sh "${RUN_COMMAND_ARGS[@]}" \
   ./kokoro/testutils/run_go_mod_tests.sh "${TINK_GO_HCVAULT_MODULE_URL}" . \
   "${TINK_GO_HCVAULT_VERSION}" "main"
