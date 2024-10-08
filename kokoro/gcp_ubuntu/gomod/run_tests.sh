@@ -36,11 +36,13 @@ if [[ -n "${CONTAINER_IMAGE:-}" ]]; then
   RUN_COMMAND_ARGS+=( -c "${CONTAINER_IMAGE}" )
 fi
 
-readonly TINK_GO_HCVAULT_MODULE_URL="github.com/tink-crypto/tink-go-hcvault"
-readonly TINK_GO_HCVAULT_VERSION="$(cat version.bzl | grep ^TINK | cut -f 2 -d \")"
+readonly MODULE_URL="github.com/tink-crypto/tink-go-hcvault"
+readonly MODULE_VERSION="$(cat integration/hcvault/hcvault_client.go \
+                          | grep '// Version:' \
+                          | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')"
 
 ./kokoro/testutils/run_command.sh "${RUN_COMMAND_ARGS[@]}" \
   ./kokoro/testutils/check_go_generated_files_up_to_date.sh .
 ./kokoro/testutils/run_command.sh "${RUN_COMMAND_ARGS[@]}" \
-  ./kokoro/testutils/run_go_mod_tests.sh "${TINK_GO_HCVAULT_MODULE_URL}" . \
-  "${TINK_GO_HCVAULT_VERSION}" "main"
+  ./kokoro/testutils/run_go_mod_tests.sh "${MODULE_URL}" . \
+  "${MODULE_VERSION}" "main"

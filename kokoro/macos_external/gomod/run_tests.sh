@@ -25,9 +25,10 @@ fi
 source ./kokoro/testutils/install_go.sh
 echo "Using go binary from $(which go): $(go version)"
 
-readonly TINK_GO_HCVAULT_MODULE_URL="github.com/tink-crypto/tink-go-hcvault"
-readonly TINK_GO_HCVAULT_VERSION="$(cat version.bzl | grep ^TINK \
-  | cut -f 2 -d \")"
+readonly MODULE_URL="github.com/tink-crypto/tink-go-hcvault"
+readonly MODULE_VERSION="$(cat integration/hcvault/hcvault_client.go \
+                          | grep '// Version:' \
+                          | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')"
 
-./kokoro/testutils/run_go_mod_tests.sh "${TINK_GO_HCVAULT_MODULE_URL}" \
-  "$(pwd)" "${TINK_GO_HCVAULT_VERSION}" "main"
+./kokoro/testutils/run_go_mod_tests.sh "${MODULE_URL}" "$(pwd)" \
+  "${MODULE_VERSION}" "main"
