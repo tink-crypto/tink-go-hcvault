@@ -14,8 +14,6 @@
 
 // Package hcvault provides integration with the [HashiCorp Vault].
 //
-// Version: 2.2.0
-//
 // [HashiCorp Vault]: https://www.vaultproject.io/.
 package hcvault
 

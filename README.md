@@ -15,6 +15,8 @@ Gomod    | [![Gomod_GcpUbuntu][tink_go_hcvault_gomod_badge_gcp_ubuntu]](#) | [![
 This is an extension to the [Tink Go](https://github.com/tink-crypto/tink-go)
 library that provides support for HashiCorp Vault.
 
+The latest version is 2.2.0.
+
 The official documentation is available at https://developers.google.com/tink.
 
 ## Contact and mailing list
