@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/hashicorp/vault/api v1.16.0
-	github.com/tink-crypto/tink-go/v2 v2.3.0
+	github.com/tink-crypto/tink-go/v2 v2.4.0
 )
 
 require (
@@ -27,5 +27,5 @@ require (
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1 // indirect
-	google.golang.org/protobuf v1.36.0 // indirect
+	google.golang.org/protobuf v1.36.5 // indirect
 )
