@@ -164,6 +164,10 @@ func TestExtractPlaintextFails(t *testing.T) {
 		secret *api.Secret
 	}{
 		{
+			desc:   "nil secret",
+			secret: nil,
+		},
+		{
 			desc: "wrong type",
 			secret: &api.Secret{
 				Data: map[string]any{"plaintext": 123},

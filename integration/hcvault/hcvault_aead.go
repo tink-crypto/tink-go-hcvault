@@ -138,13 +138,20 @@ func (a *vaultAEAD) Encrypt(plaintext, associatedData []byte) ([]byte, error) {
 }
 
 func extractPlaintext(secret *api.Secret) ([]byte, error) {
-	// Note that when a valid ciphertext of the empty string is decrypted,
-	// secret.Data["plaintext"] may not be set. So we allow that.
+	// A nil response from Vault is never a successful Decrypt: the AEAD
+	// contract requires that a successful Decrypt produce authenticated
+	// data. extractCiphertext applies the same shape check on Encrypt;
+	// extractPlaintext was previously asymmetric and silently returned an
+	// empty byte slice on nil/missing fields, which lets a malformed or
+	// compromised Vault response be accepted as authenticated empty data.
 	if secret == nil {
-		return []byte{}, nil
+		return nil, errors.New("secret is nil")
 	}
 	p, ok := secret.Data["plaintext"]
 	if !ok {
+		// A missing "plaintext" field is the documented Vault encoding of
+		// "empty plaintext successfully decrypted"; preserve that exact
+		// edge case but reject the broader nil/missing-secret shape above.
 		return []byte{}, nil
 	}
 	plaintext64, ok := p.(string)
