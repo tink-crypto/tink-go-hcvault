@@ -6,7 +6,7 @@ toolchain go1.24.4
 
 require (
 	github.com/hashicorp/vault/api v1.20.0
-	github.com/tink-crypto/tink-go/v2 v2.5.0
+	github.com/tink-crypto/tink-go/v2 v2.6.0
 )
 
 require (
