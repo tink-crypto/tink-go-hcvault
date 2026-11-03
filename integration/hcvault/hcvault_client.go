@@ -81,7 +81,9 @@ func NewClientWithAEADOptions(uriPrefix string, client *api.Logical, aeadOpts ..
 //
 // For reference, see https://developer.hashicorp.com/vault/api-docs/secret/transit.
 //
-// Deprecated. Use NewClientWithAEADOptions instead.
+// Deprecated: Use [NewClientWithAEADOptions] instead, which passes associated
+// data using Vault's "associated_data" parameter by default. This function
+// will be removed in the next major release.
 func NewClient(uriPrefix string, tlsCfg *tls.Config, token string) (registry.KMSClient, error) {
 	httpClient := api.DefaultConfig().HttpClient
 	transport := httpClient.Transport.(*http.Transport)

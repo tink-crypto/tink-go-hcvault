@@ -73,6 +73,10 @@ func (o option) set(a *aeadParams) error { return o(a) }
 // With Tink's "KMS envelope AEAD", always use a key with "derived=false".
 //
 // For reference, see https://developer.hashicorp.com/vault/api-docs/secret/transit.
+//
+// Deprecated: Call [NewAEAD] or [NewClientWithAEADOptions] without this option
+// instead, which passes associated data using Vault's "associated_data"
+// parameter. This function will be removed in the next major release.
 func WithLegacyContextParamater() AEADOption {
 	return option(func(a *aeadParams) error {
 		a.associatedDataName = legacyAssociatedDataName
